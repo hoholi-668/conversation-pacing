@@ -122,6 +122,10 @@ if (explicit || follow.action === 'reply' || prob.wake || catchUp.catchUp) {
 
 ---
 
+## 遇到问题
+
+不说话 / 太吵 / 压缩后胡言乱语？先看 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。
+
 ## 边界
 
 - 只管**调度**（什么时候说、说给谁），不管**怎么说话**——那部分见 [dsh-qq-persona](../dsh-qq-persona)。
