@@ -1,22 +1,40 @@
 # conversation-pacing
 
-> 让机器人**该说才说**：什么时候说、说给谁、说几次、什么时候闭嘴。
+<p>
+  <a href="https://github.com/hoholi-668/conversation-pacing/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/hoholi-668/conversation-pacing/test.yml?branch=main&label=CI&style=flat-square"></a>
+  <img alt="license" src="https://img.shields.io/badge/license-MIT-263146?style=flat-square">
+</p>
 
-[![CI](https://img.shields.io/github/actions/workflow/status/hoholi-668/conversation-pacing/test.yml?branch=main&label=CI)](https://github.com/hoholi-668/conversation-pacing/actions)
-[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+**English** · [中文文档](#中文文档)
 
-群聊机器人只有两种死法：
+> **A pacing library for group-chat bots: when to speak, whom to answer, and when to shut up.**
+> Primary thread always answered, interjections decay, and the wake probability adapts to how
+> noisy the group is.
 
-| 死法 | 症状 |
+**Use this if** your bot either replies to everything (echo machine) or never replies (dead bot),
+and you want a cheap heuristic layer **before** spending a model call.
+
+> **Note:** this is **not an MCP server** — it is a small library you import into your own agent.
+
+## API
+
+| Function | Purpose |
 |---|---|
-| **话太多** | 每条都接，像客服 / 回声机，群友开始烦 |
-| **话太少** | 叫它不应，聊到它也不接，像个 IQ 很低的机器人 |
+| `matchExplicitTrigger` | Decide if a message explicitly addresses the bot |
+| `decideFollowUp` | Continue the primary thread or stay silent |
+| `shouldWake` | Adaptive wake probability (per-group rate, cooldown) |
+| `shouldCatchUp` | Handle a backlog after being idle |
+| `batchMessages` / `buildGroupDigest` | Compress many messages into one prompt |
 
-这套逻辑解决的就是这两件事。**确定性优先，概率兜底。**
+## License
+
+MIT
 
 ---
 
-## 这套插件
+# 中文文档
+
+### 这套插件
 
 | 插件 | 作用 | 依赖 |
 |---|---|---|
@@ -28,7 +46,7 @@
 
 > 除 qzone 外，其余插件都不依赖任何 IM 网关——任何 MCP 客户端（DSH / Claude / Cursor）都能直接接。
 
-## 30 秒上手
+### 30 秒上手
 
 ```bash
 npm install
@@ -53,7 +71,7 @@ npm run simulate  # 时间线模拟，打印每一步决策
 
 ---
 
-## 它怎么决策
+### 它怎么决策
 
 ```
 一条消息进来
@@ -67,21 +85,21 @@ npm run simulate  # 时间线模拟，打印每一步决策
 
 ---
 
-## 三个最有价值的设计
+### 三个最有价值的设计
 
-### 1. 主对话对象 100%，插话 0.5 衰减
+#### 1. 主对话对象 100%，插话 0.5 衰减
 
 她上一条消息回的是谁，那个人接话就**必回**；别人插话依次 50% → 25% → 12.5% → 5%。
 
 效果：像两个人在聊，旁边的人偶尔能插一句，但不会变成回声机。
 
-### 2. 自适应概率（2% → 6% 封顶）
+#### 2. 自适应概率（2% → 6% 封顶）
 
 安静的群用 2%，热闹的群按消息速率抬升，但**永远不超过 6%**。
 
 为什么不直接调高：安静群会被吵死。为什么不直接调低：热闹群等于永远不醒。
 
-### 3. 压缩后的「机械小抄」
+#### 3. 压缩后的「机械小抄」
 
 上下文被压缩后，模型会忘记「谁说了什么」。注入一段 200 字的
 `【群聊最近】名字：内容｜...`，她就不会对着空气接话。
@@ -90,7 +108,7 @@ npm run simulate  # 时间线模拟，打印每一步决策
 
 ---
 
-## 怎么接进 DSH
+### 怎么接进 DSH
 
 **先说明：这不是 MCP 服务，是一个调度库。** 它没有工具接口，接入方式是 import 到你的 agent 代码里。
 
@@ -112,7 +130,7 @@ if (explicit || follow.action === 'reply' || prob.wake || catchUp.catchUp) {
 如果你只是想**在 DSH 里少被打扰**（不需要群聊场景），这个库帮不上忙——它解决的是
 「消息很多、什么时候该接话」，不是「DSH 什么时候该主动说话」。
 
-## 接入你自己的项目
+### 接入你自己的项目
 
 ```js
 import { matchExplicitTrigger, decideFollowUp, shouldWake, shouldCatchUp } from 'conversation-pacing';
@@ -132,7 +150,7 @@ if (explicit || follow.action === 'reply' || prob.wake || catchUp.catchUp) {
 
 ---
 
-## 实测数据（为什么限流不是抠门）
+### 实测数据（为什么限流不是抠门）
 
 | 项 | 数值 |
 |---|---|
@@ -145,7 +163,7 @@ if (explicit || follow.action === 'reply' || prob.wake || catchUp.catchUp) {
 
 ---
 
-## 文件
+### 文件
 
 ```
 DESIGN.md               设计文档：17 个场景逐个拆（输入/决策/参数/失败模式）
@@ -158,18 +176,24 @@ examples/simulate.mjs   时间线模拟，可重复
 
 ---
 
-## 边界
+### 边界
 
 - 只管**调度**（什么时候说、说给谁），不管**怎么说话**——那部分见 [dsh-qq-persona](../dsh-qq-persona)
 - 纯函数，不绑任何 IM 平台
 - 参数是实测值，不是拍脑袋；但**你的群脾气不同，一定要调**
 
-## 遇到问题
+### 遇到问题
 
 不说话 / 太吵 / 压缩后胡言乱语？先看 [TROUBLESHOOTING.md](TROUBLESHOOTING.md)。
 
 ---
 
-## 许可
+### 许可
 
 MIT © 2026 HOHOLI
+
+---
+
+## 检索关键词（给搜索引擎）
+
+群聊节奏 · 发言时机 · 概率唤醒 · 机器人不刷屏
