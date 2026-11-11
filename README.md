@@ -1,4 +1,5 @@
 # conversation-pacing
+[![npm](https://img.shields.io/npm/v/conversation-pacing.svg)](https://www.npmjs.com/package/conversation-pacing)
 
 <p>
   <a href="https://github.com/hoholi-668/conversation-pacing/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/hoholi-668/conversation-pacing/test.yml?branch=main&label=CI&style=flat-square"></a>
