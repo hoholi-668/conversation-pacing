@@ -7,6 +7,9 @@
 
 **English** · [中文文档](#中文文档)
 
+> 已发布到 npm：`npm i conversation-pacing`
+
+
 > **A pacing library for group-chat bots: when to speak, whom to answer, and when to shut up.**
 > Primary thread always answered, interjections decay, and the wake probability adapts to how
 > noisy the group is.

@@ -1,7 +1,7 @@
 {
   "name": "conversation-pacing",
   "version": "0.1.0",
-  "description": "让机器人该说才说：群聊调度参考实现（主对话对象 100%、插话衰减、自适应概率、积压兜底、压缩后小抄）",
+  "description": "Group-chat pacing library: when to speak, whom to answer, when to shut up. 群聊机器人发言节奏（不是 MCP 服务）。",
   "type": "module",
   "main": "src/pacing.js",
   "exports": {
@@ -11,7 +11,14 @@
     "test": "node --test",
     "simulate": "node examples/simulate.mjs"
   },
-  "keywords": ["chatbot", "group-chat", "scheduling", "qq", "ai-agent", "pacing"],
+  "keywords": [
+    "chatbot",
+    "group-chat",
+    "scheduling",
+    "qq",
+    "ai-agent",
+    "pacing"
+  ],
   "author": "HOHOLI",
   "license": "MIT",
   "repository": {
@@ -20,5 +27,17 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "homepage": "https://github.com/hoholi-668/conversation-pacing#readme",
+  "bugs": {
+    "url": "https://github.com/hoholi-668/conversation-pacing/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
