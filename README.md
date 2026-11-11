@@ -26,6 +26,20 @@ and you want a cheap heuristic layer **before** spending a model call.
 | `shouldCatchUp` | Handle a backlog after being idle |
 | `batchMessages` / `buildGroupDigest` | Compress many messages into one prompt |
 
+## FAQ
+
+**Is this an MCP server?**
+No. It is a library you import; it decides *whether* to spend a model call.
+
+**Can it guarantee the bot never goes silent?**
+No. It models "should I speak", not content. Combine with `shouldCatchUp` for backlog.
+
+**How do I tune it?**
+Primary-thread replies can be unconditional; interjection uses a decayed score; `shouldWake` uses per-group rate + cooldown.
+
+**Does it work for DMs?**
+It is built for group chat; for DMs you usually want `matchExplicitTrigger` only.
+
 ## License
 
 MIT
@@ -193,6 +207,20 @@ examples/simulate.mjs   时间线模拟，可重复
 MIT © 2026 HOHOLI
 
 ---
+
+### FAQ
+
+**这是 MCP 服务吗？**
+不是，是库。它决定「要不要花一次模型调用」，不生成内容。
+
+**能保证不冷场吗？**
+不能。它只判断「该不该说」，内容仍由模型决定；积压消息用 `shouldCatchUp`。
+
+**参数怎么调？**
+主对话可无条件回；插话用衰减分数；`shouldWake` 按群活跃度和冷却时间调概率。
+
+**私聊能用吗？**
+主要面向群聊；私聊一般只用 `matchExplicitTrigger`。
 
 ## 检索关键词（给搜索引擎）
 
