@@ -90,6 +90,28 @@ npm run simulate  # 时间线模拟，打印每一步决策
 
 ---
 
+## 怎么接进 DSH
+
+**先说明：这不是 MCP 服务，是一个调度库。** 它没有工具接口，接入方式是 import 到你的 agent 代码里。
+
+```js
+// 你的 DSH 消息处理回调里
+import { matchExplicitTrigger, decideFollowUp, shouldWake, shouldCatchUp } from 'conversation-pacing';
+
+const explicit = matchExplicitTrigger({ message, triggers });
+const follow = decideFollowUp({ now, lastAiReplyAt, senderUin, primary, hits });
+const prob = shouldWake({ message, triggers, rate, adaptive });
+const catchUp = shouldCatchUp({ unreadCount, msSinceLastLook });
+
+if (explicit || follow.action === 'reply' || prob.wake || catchUp.catchUp) {
+  // 只有这里才值得花一次模型调用
+  await wake({ reason: explicit || follow.reason || prob.reason || catchUp.reason });
+}
+```
+
+如果你只是想**在 DSH 里少被打扰**（不需要群聊场景），这个库帮不上忙——它解决的是
+「消息很多、什么时候该接话」，不是「DSH 什么时候该主动说话」。
+
 ## 接入你自己的项目
 
 ```js
